@@ -1,26 +1,17 @@
 import time
 import random
 from teams import teams
+from actions import actions
 
-def generateRandomEvent():
+def generateRandomEvent(action):
     event = ''
-    randomNumber = random.randint(1,10)
+    if action == 'attack':
+        weights = [0.15, 0.05, 0.1, 0.2, 0.5]
+        event = random.choice(random.choices(actions['attack'], weights))
+    elif action == 'defense':
+        weights = [0.2, 0.05, 0.15, 0.2, 0.2, 0.3]
+        event = random.choice(random.choices(actions['defense'], weights))
 
-    if randomNumber == 1 or randomNumber == 2 or randomNumber == 3:
-        event = ''
-    elif randomNumber == 4:
-        event = 'Zółta Kartka'
-    elif randomNumber == 5:
-        event = 'Czerwona Kartka'
-    elif randomNumber == 6:
-        event = 'Aut'
-    elif randomNumber == 7:
-        event = 'Rzut Wolny'
-    elif randomNumber == 8:
-        event = 'Rzut Karny'
-    elif randomNumber == 9:
-        event = 'BRAMKA!'
-    
     return event
 
 def generateAction():
@@ -49,43 +40,81 @@ def app():
     if team1 == team2:
         team2 = random.choice(teams)
 
-    score = {team1:0, team2:0}
+    player_team = input(f'Which team you choose? | {team1}, {team2}: ')
 
-    i = 1
-    while i < 91:
-        action = generateAction()
-        event = generateRandomEvent()
-        time.sleep(0.5)
-        team = generateRandomTeam(team1, team2)
-        print(f'{i}.{team}: {event}')
-
-        if event == "BRAMKA!":
-            score[team] = score[team]+1
-            print(f'Wynik: {score}')
+    if player_team == team1 or player_team == team2:
         
-        if event == "Rzut Wolny":
-            randomNumber = random.randint(1,10)
-            if randomNumber == 10:
-                score[team] = score[team]+1
-                print('Co za piekna bramka z rzutu wolnego!')
-                print(f'Wynik: {score}')
+        score = {team1:0, team2:0}
+        print(f'Match Start! {team1} vs {team2}')
+        time.sleep(0.5)
+        i = 1
+        while i < 91:
+            action = generateAction()
+            event = generateRandomEvent(action)
+            time.sleep(0.5)
+            team = generateRandomTeam(team1, team2)
+            if event == '':
+                pass
             else:
-                print('Niestety zmarnowali okazje na bramke z rzutu wolnego!')
+                print(f'{i}.{team}: {event}')
 
-        if event == "Rzut Karny":
-            randomNumber = random.randint(1,2)
-            if randomNumber == 1:
+            if event == "Foul":
+                possibilities = ['Red Card', 'Yellow Card', 'Free Kick', 'Penalty', '']
+                weights = [0.05, 0.3, 0.2, 0.05, 0.4]
+                event = random.choice(random.choices(possibilities, weights))
+                if event == '':
+                    print('Referee starts game after foul')
+                else:
+                    print(f'Referee decide to: {event}')
+                    time.sleep(0.5)
+
+            if event == "Goal":
                 score[team] = score[team]+1
-                print('BRAMKA!')
-                print(f'Wynik: {score}')
-            else:
-                print("Nietrafiony Karny!")
+                print(f'Score: {score}')
+            
+            if event == "Free Kick":
+                randomNumber = random.randint(1,10)
+                if randomNumber == 10:
+                    score[team] = score[team]+1
+                    print('Co za piekna bramka z rzutu wolnego!')
+                    print(f'Score: {score}')
+                else:
+                    print('Niestety zmarnowali okazje na bramke z rzutu wolnego!')
 
-        if i == 45:
-            print('Przerwa!')
-            print(score)
-            time.sleep(3)
-        i+=1
-    print(score)
+            if event == "Penalty":
+                sides = ['left', 'center', 'right']
+                if team == player_team:
+
+                    player_shoot = input('Where you want to shoot? (left, center, right) ')
+                    goalkeeper = random.choice(sides)
+                    if player_shoot == goalkeeper:
+                        print('Goalkeeper defends the penalty!!')
+                        print(f'Goalkeeper go to: {goalkeeper}')
+                    else:
+                        print('Goal!')
+                        print(f'Goalkeeper go to: {goalkeeper}')
+                        score[team] = score[team]+1
+                        print(f'Score: {score}')
+                else:
+                    playerGoalkeeper = input('Where you want to go with your goalkeeper? (left, center, right) ')
+                    computerShoot = random.choice(sides)
+                    if computerShoot == playerGoalkeeper:
+                        print('Goalkeeper defends the penalty!!')
+                        print(f'Shooter shoot to: {computerShoot}')
+                    else:
+                        print('Goal!')
+                        print(f'Shooter shoot to: {computerShoot}')
+                        score[team] = score[team]+1
+                        print(f'Score: {score}')
+
+            if i == 45:
+                print('Przerwa!')
+                print(score)
+                time.sleep(3)
+            i+=1
+        print(score)
+    else:
+        print('You must enter the correct name of the team')
+        return
 
 app()
