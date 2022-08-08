@@ -2,7 +2,7 @@ import time
 import random
 from teams import teams
 from actions import actions
-
+from events.penalty import penalty
 def generateRandomEvent(action):
     if action == 'attack':
         weights = [0.15, 0.05, 0.1, 0.2, 0.5]
@@ -26,44 +26,6 @@ def generateRandomTeam(team1, team2):
     teams = [team1, team2]
     team = random.choice(teams)
     return team
-
-def penalty(score, team, sides, action):
-    if action == 'Shoot':
-        player_shoot = input('Where you want to shoot? (left, center, right) ')
-        player_shoot.lower()
-        #If player dont choose direction
-        if player_shoot == "left" or player_shoot == "center" or player_shoot == "right":
-            pass
-        else:
-            player_shoot = random.choice(['left', 'center', 'right'])
-            print(f'You didnt choose. I shot {player_shoot}')
-
-        goalkeeper = random.choice(sides)
-        if player_shoot == goalkeeper:
-            print('Goalkeeper defends the penalty!!')
-        else:
-            print('Goal!')
-            addScore(score, team)
-        print(f'Goalkeeper go to: {goalkeeper}')
-
-    elif action == 'Save':
-        playerGoalkeeper = input('Where you want to go with your goalkeeper? (left, center, right) ')
-        playerGoalkeeper.lower()
-        
-        #If player dont choose direction
-        if playerGoalkeeper == "left" or playerGoalkeeper == "center" or playerGoalkeeper == "right":
-            pass
-        else:
-            playerGoalkeeper = random.choice(['left', 'center', 'right'])
-            print(f'You didnt choose. I go {playerGoalkeeper}')
-
-        computerShoot = random.choice(sides)
-        if computerShoot == playerGoalkeeper:
-            print('Goalkeeper defends the penalty!!')
-        else:
-            print('Goal!')
-            addScore(score, team)
-        print(f'Shooter shoot to: {computerShoot}')
 
 def drawATeam():
     teamsInList = random.sample(teams, 2)
@@ -118,9 +80,9 @@ def app():
             if event == "Penalty":
                 sides = ['left', 'center', 'right']
                 if team == player_team:
-                    penalty(score, team, sides, 'Shoot')
+                    penalty(score, team, sides, 'Shoot', addScore)
                 else:
-                    penalty(score, team, sides, 'Save')
+                    penalty(score, team, sides, 'Save', addScore)
 
             if i == 45:
                 print('Przerwa!')
