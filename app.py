@@ -15,15 +15,13 @@ def generateRandomEvent(action):
     return event
 
 def generateAction():
-    action = ''
-    randomNumber = random.randint(1,2)
-    if randomNumber == 1:
-        action = 'attack'
-    elif randomNumber == 2:
-        action = 'defense'
-    
+    actions = ['attack', 'defense']
+    action = random.choice(actions)
     return action
 
+def addScore(score,team):
+    score[team] = score[team]+1
+    print(f'Score: {score}')
 
 def generateRandomTeam(team1, team2):
     randomTeam = random.randint(1,2)
@@ -33,6 +31,35 @@ def generateRandomTeam(team1, team2):
         team = team2
 
     return team
+
+def penalty(score, team, sides, action):
+    if action == 'Shoot':
+        player_shoot = input('Where you want to shoot? (left, center, right) ')
+        if player_shoot != "left" or "center" or "right":
+            player_shoot = "left"
+            print(f'You didnt choose. I shot {player_shoot}')
+        goalkeeper = random.choice(sides)
+        if player_shoot == goalkeeper:
+            print('Goalkeeper defends the penalty!!')
+            print(f'Goalkeeper go to: {goalkeeper}')
+        else:
+            print('Goal!')
+            print(f'Goalkeeper go to: {goalkeeper}')
+            addScore(score, team)
+
+    elif action == 'Save':
+        playerGoalkeeper = input('Where you want to go with your goalkeeper? (left, center, right) ')
+        if playerGoalkeeper != "left" or "center" or "right":
+            playerGoalkeeper = "left"
+            print(f'You didnt choose. I go {playerGoalkeeper}')
+        computerShoot = random.choice(sides)
+        if computerShoot == playerGoalkeeper:
+            print('Goalkeeper defends the penalty!!')
+            print(f'Shooter shoot to: {computerShoot}')
+        else:
+            print('Goal!')
+            print(f'Shooter shoot to: {computerShoot}')
+            addScore(score, team)
 
 def app():
     team1 = random.choice(teams)
@@ -51,8 +78,10 @@ def app():
         while i < 91:
             action = generateAction()
             event = generateRandomEvent(action)
-            time.sleep(0.5)
             team = generateRandomTeam(team1, team2)
+
+            time.sleep(0.5)
+
             if event == '':
                 pass
             else:
@@ -69,48 +98,36 @@ def app():
                     time.sleep(0.5)
 
             if event == "Goal":
-                score[team] = score[team]+1
-                print(f'Score: {score}')
+                addScore(score, team)
             
             if event == "Free Kick":
                 randomNumber = random.randint(1,10)
                 if randomNumber == 10:
-                    score[team] = score[team]+1
                     print('Co za piekna bramka z rzutu wolnego!')
-                    print(f'Score: {score}')
+                    addScore(score, team)
                 else:
                     print('Niestety zmarnowali okazje na bramke z rzutu wolnego!')
 
             if event == "Penalty":
                 sides = ['left', 'center', 'right']
                 if team == player_team:
-
-                    player_shoot = input('Where you want to shoot? (left, center, right) ')
-                    goalkeeper = random.choice(sides)
-                    if player_shoot == goalkeeper:
-                        print('Goalkeeper defends the penalty!!')
-                        print(f'Goalkeeper go to: {goalkeeper}')
-                    else:
-                        print('Goal!')
-                        print(f'Goalkeeper go to: {goalkeeper}')
-                        score[team] = score[team]+1
-                        print(f'Score: {score}')
+                    penalty(score, team, sides, 'Shoot')
                 else:
-                    playerGoalkeeper = input('Where you want to go with your goalkeeper? (left, center, right) ')
-                    computerShoot = random.choice(sides)
-                    if computerShoot == playerGoalkeeper:
-                        print('Goalkeeper defends the penalty!!')
-                        print(f'Shooter shoot to: {computerShoot}')
-                    else:
-                        print('Goal!')
-                        print(f'Shooter shoot to: {computerShoot}')
-                        score[team] = score[team]+1
-                        print(f'Score: {score}')
+                    penalty(score, team, sides, 'Save')
 
             if i == 45:
                 print('Przerwa!')
                 print(score)
                 time.sleep(3)
+            i+=1
+            
+        #Dogrywka
+        if score[team1] == score[team2]:
+            while i < 121:
+                if i == 105:
+                    print('Przerwa!')
+                    print(score)
+                    time.sleep(3)
             i+=1
         print(score)
     else:
