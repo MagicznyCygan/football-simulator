@@ -4,7 +4,6 @@ from teams import teams
 from actions import actions
 
 def generateRandomEvent(action):
-    event = ''
     if action == 'attack':
         weights = [0.15, 0.05, 0.1, 0.2, 0.5]
         event = random.choice(random.choices(actions['attack'], weights))
@@ -24,49 +23,59 @@ def addScore(score,team):
     print(f'Score: {score}')
 
 def generateRandomTeam(team1, team2):
-    randomTeam = random.randint(1,2)
-    if randomTeam == 1:
-        team = team1
-    else: 
-        team = team2
-
+    teams = [team1, team2]
+    team = random.choice(teams)
     return team
 
 def penalty(score, team, sides, action):
     if action == 'Shoot':
         player_shoot = input('Where you want to shoot? (left, center, right) ')
-        if player_shoot != "left" or "center" or "right":
-            player_shoot = "left"
+        player_shoot.lower()
+        #If player dont choose direction
+        if player_shoot == "left" or player_shoot == "center" or player_shoot == "right":
+            pass
+        else:
+            player_shoot = random.choice(['left', 'center', 'right'])
             print(f'You didnt choose. I shot {player_shoot}')
+
         goalkeeper = random.choice(sides)
         if player_shoot == goalkeeper:
             print('Goalkeeper defends the penalty!!')
-            print(f'Goalkeeper go to: {goalkeeper}')
         else:
             print('Goal!')
-            print(f'Goalkeeper go to: {goalkeeper}')
             addScore(score, team)
+        print(f'Goalkeeper go to: {goalkeeper}')
 
     elif action == 'Save':
         playerGoalkeeper = input('Where you want to go with your goalkeeper? (left, center, right) ')
-        if playerGoalkeeper != "left" or "center" or "right":
-            playerGoalkeeper = "left"
+        playerGoalkeeper.lower()
+        
+        #If player dont choose direction
+        if playerGoalkeeper == "left" or playerGoalkeeper == "center" or playerGoalkeeper == "right":
+            pass
+        else:
+            playerGoalkeeper = random.choice(['left', 'center', 'right'])
             print(f'You didnt choose. I go {playerGoalkeeper}')
+
         computerShoot = random.choice(sides)
         if computerShoot == playerGoalkeeper:
             print('Goalkeeper defends the penalty!!')
-            print(f'Shooter shoot to: {computerShoot}')
         else:
             print('Goal!')
-            print(f'Shooter shoot to: {computerShoot}')
             addScore(score, team)
+        print(f'Shooter shoot to: {computerShoot}')
+
+def drawATeam():
+    teamsInList = random.sample(teams, 2)
+    return teamsInList[0], teamsInList[1]
+
+def checkForEvent():
+    #TODO Dodac ify z eventami zeby nie zasmiecac app
+    pass
 
 def app():
-    team1 = random.choice(teams)
-    team2 = random.choice(teams)
-    if team1 == team2:
-        team2 = random.choice(teams)
 
+    team1, team2 = drawATeam()
     player_team = input(f'Which team you choose? | {team1}, {team2}: ')
 
     if player_team == team1 or player_team == team2:
@@ -74,17 +83,15 @@ def app():
         score = {team1:0, team2:0}
         print(f'Match Start! {team1} vs {team2}')
         time.sleep(0.5)
+
         i = 1
         while i < 91:
-            action = generateAction()
-            event = generateRandomEvent(action)
-            team = generateRandomTeam(team1, team2)
-
+            action = generateAction() # attack or defense
+            event = generateRandomEvent(action) # foul, shoot, penalty ...
+            team = generateRandomTeam(team1, team2) # which team has the action
             time.sleep(0.5)
 
-            if event == '':
-                pass
-            else:
+            if event != '':
                 print(f'{i}.{team}: {event}')
 
             if event == "Foul":
@@ -122,14 +129,29 @@ def app():
             i+=1
             
         #Dogrywka
-        if score[team1] == score[team2]:
-            while i < 121:
-                if i == 105:
-                    print('Przerwa!')
-                    print(score)
-                    time.sleep(3)
-            i+=1
-        print(score)
+            if i == 90 and score[team1] == score[team2]:
+                print('Rozpoczynam dogrywke')
+                i = 91
+                while i < 121:
+                    action = generateAction() # attack or defense
+                    event = generateRandomEvent(action) # foul, shoot, penalty ...
+                    team = generateRandomTeam(team1, team2) # which team has the action
+                    time.sleep(0.5)
+                    if event != '':
+                        print(f'{i}.{team}: {event}')
+                        time.sleep(0.1)
+                    if i == 105:
+                        print('Przerwa!')
+                        print(score)
+                        time.sleep(3)
+                    i+=1
+
+                    #Penalties
+                    if i == 120 and score[team1] == score[team2]:
+                        time.sleep(0.1)
+                        print('Rozpoczynamy rzuty karne')
+
+        print(f'Wygrywa: {max(score, key=score.get)}, {score}')
     else:
         print('You must enter the correct name of the team')
         return
